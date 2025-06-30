@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model App {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  packageName    String?
+  bundleId       String?
+  icon           String?
+  category       String?
+  developer      String?
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  healthScores   HealthScore[]
+
+  @@map("apps")
+}
+
+model HealthScore {
+  id              String   @id @default(cuid())
+  appId           String
+  score           Float
+  date            DateTime @default(now())
+  complaintsCount Int      @default(0)
+  trendDirection  String?
+  
+  app App @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@unique([appId, date])
+  @@map("health_scores")
+}
